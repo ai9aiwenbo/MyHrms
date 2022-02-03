@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>HRMS介绍</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+</head>
+<style>
+    body {
+        height: 100%;
+    }
+
+    .div1 {
+        position: relative;
+        background-size: cover;
+    }
+
+    body .top1 {
+        color: #fff;
+    }
+
+    body .t2 {
+        font-size: 18px;
+    }
+
+    .top1 {
+        position: absolute;
+        top: 0px;
+    }
+</style>
+<body class="gray-bg">
+
+
+<div class="div1">
+    <img th:src="@{/img/bg.jpg}" width="100%">
+    <div class="top1">
+        <div class="row  border-bottom  dashboard-header">
+            <div class="col-sm-8 ">
+                <h2>什么是HRMS系统</h2>
+                <p class="t2"> 人力资源管理系统（Human Resources Management
+                    System，HRMS），是指组织或社会团体运用系统学理论方法，对企业的人力资源管理方方面面进行分析、规划、实施、调整，提高企业人力资源管理水平，使人力资源更有效的服务于组织或团体目标。一款好的人力资源管理软件，能够帮助企业在正确的时间里，选择到正确的人，安排到正确的职位上，发挥其正确的作用，从而实现企业正确的战略目标和最大化的经济效益。
+
+                    人力资源管理系统，
+                    通过提高内部员工的满意度、忠诚度，从而提高员工贡献度，即绩效，帮助管理者通过有效组织管理降低成本和加速增长来创造价值链利润。人力资源综合管理解决方案从人力资源管理的角度出发，用集中的数据将几乎所有与人力资源相关的信息，实现对于企业的组织架构管理、人事档案、合同管理、薪酬管理、招聘管理、招聘对接、培训管理、办公管理等各方面的统一管理，为企业优化人事工作流程，提高人事管理工作效率，快速构建高效快捷的人力资源管理环境。
+                </p>
+
+            </div>
+            <div class="col-sm-4">
+                <h2>本系统技术框架：</h4>
+                    <ol class="t2">
+                        <li>核心框架：Spring Boot。</li>
+                        <li>安全框架：Apache Shiro。</li>
+                        <li>模板引擎：Thymeleaf。</li>
+                        <li>持久层框架：MyBatis。</li>
+                        <li>数据库连接池：Druid。</li>
+                        <li>工具类：Fastjson。</li>
+                        <li>更多……</li>
+                    </ol>
+            </div>
+        </div>
+        <div class="wrapper wrapper-content ">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2>HRMS提供什么功能</h2>
+                    <ol class="t2">
+                        <li><b>组织管理模块</b> :主要实现对公司组织结构及其变更的管理.</li>
+                        <li><b>人事信息管理模块</b>:主要实现对员工从试用、转正直至解聘或退休整个过程中各类信息的管理.</li>
+                        <li><b>福利管理模块</b>:福利管理系统提供员工的各项福利基金的提取和管理功能.</li>
+                        <li><b>工资管理模块</b>:工资管理系统适用于各类企业、行政、事业及科研单位，直接集成考勤、绩效考核等数据，主要提供工资核算、工资发放、经费计提、统计分析等功能.</li>
+                        <li><b>培训管理模块</b>:据岗位设置及绩效考核结果，确定必要的培训需求.</li>
+                        <li><b>考勤管理模块</b>:主要提供对员工出勤情况的管理，帮助企业完善作业制度.</li>
+                        <li><b>绩效管理模块</b>:通过绩效考核可以评价人员配置和培训的效果、对员工进行奖惩激励、为人事决策提供依据.</li>
+                        <li>更多...</li>
+                    </ol>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+</body>
+</html>

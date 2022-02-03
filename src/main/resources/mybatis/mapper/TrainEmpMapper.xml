@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cwb.hrms.mapper.TrainEmpMapper">
+
+	<resultMap type="com.cwb.hrms.pojo.TrainEmp" id="TrainEmpResult">
+		<result property="tId"     column="t_id"      />
+		<result property="empId"     column="emp_id"      />
+	</resultMap>
+
+	<delete id="deleteTrainEmpBytId" parameterType="Long">
+		delete from sys_train_emp where t_id=#{tId}
+	</delete>
+	
+	<select id="countEmpBytId" resultType="Integer">
+	    select count(1) from sys_train_emp where t_id=#{tId}
+	</select>
+	
+	<delete id="deleteTrainEmp" parameterType="Long">
+ 		delete from sys_train_emp where emp_id in
+ 		<foreach collection="array" item="empId" open="(" separator="," close=")">
+ 			#{empId}
+        </foreach> 
+ 	</delete>
+	
+	<insert id="batchTrainEmp">
+		insert into sys_train_emp(t_id, emp_id) values
+		<foreach item="item" index="index" collection="list" separator=",">
+			(#{item.tId},#{item.empId})
+		</foreach>
+	</insert>
+	
+</mapper> 

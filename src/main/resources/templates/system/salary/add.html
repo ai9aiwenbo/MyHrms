@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增薪资')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-salary-add" name="form-salary-add">
+        <h4 class="form-header h4">基本信息</h4>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"><span style="color: red; ">*</span>员工名称：</label>
+                    <div class="col-sm-8">
+                        <select id="emp" class="form-control select2-hidden-accessible" name="empId">
+                            <option th:each="emp:${emps}" th:value="${emp.empId}" th:text="${emp.name}"
+                                    th:disabled="${emp.status == '1'}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"><span style="color: red; ">*</span>基础薪资：</label>
+                    <div class="col-sm-8">
+                        <input name="basicSalary" autocomplete="off" placeholder="请输入基础薪资" class="form-control"
+                               type="text"
+                               maxlength="30" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"><span style="color: red; ">*</span>奖金：</label>
+                    <div class="col-sm-8">
+                        <input name="bonus" autocomplete="off" placeholder="请输入奖金" class="form-control"
+                               type="text" maxlength="11" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"><span style="color: red; ">*</span>午餐补助：</label>
+                    <div class="col-sm-8">
+                        <input name="lunchSalary" autocomplete="off" class="form-control" type="text" maxlength="50"
+                               placeholder="请输入午餐补助" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"><span style="color: red; ">*</span>交通补助：</label>
+                    <div class="col-sm-8">
+                        <input name="trafficSalary" placeholder="请输入交通补助" autocomplete="off" class="form-control"
+                               type="text" maxlength="30" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">发放日期：</label>
+                    <div class="col-sm-8">
+                        <input name="paytime" placeholder="发放日期" class="time-input form-control" type="text">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">发放状态：</label>
+                    <div class="col-sm-8">
+                        <div class="onoffswitch">
+                            <input type="checkbox" th:checked="true" class="onoffswitch-checkbox" id="isPay">
+                            <label class="onoffswitch-label" for="isPay">
+                                <span class="onoffswitch-inner"></span>
+                                <span class="onoffswitch-switch"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h4 class="form-header h4">其他信息</h4>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-xs-2 control-label">备注：</label>
+                    <div class="col-xs-10">
+                        <textarea name="remark" autocomplete="off" maxlength="500" class="form-control"
+                                  rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script type="text/javascript">
+    var prefix = ctx + "system/salary";
+
+    $("#form-salary-add").validate({
+        onkeyup: false,
+        rules: {
+            basicSalary: {
+                required: true
+            },
+            bouns: {
+                required: true
+            },
+            lunchSalary: {
+                required: true
+            },
+            trafficSalary: {
+                required: true
+            }
+        },
+        messages: {
+            "basicSalary": {
+                required: "请输入基础薪资"
+            },
+            "bouns": {
+                required: "请输入奖金"
+            },
+            "lunchSalary": {
+                required: "请输入午餐补助"
+            },
+            "trafficSalary": {
+                required: "请输入交通补助"
+            }
+        },
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var data = $("#form-salary-add").serializeArray();
+            var isPay = $("input[id='isPay']").is(':checked') == true ? 0 : 1;
+            var empIds = $.form.selectSelects("emp");
+            data.push({"name": "isPay", "value": isPay});
+            data.push({"name": "empIds", "value": empIds});
+            $.operate.save(prefix + "/add", data);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cwb.hrms.mapper.SalaryMapper">
+
+    <resultMap type="com.cwb.hrms.pojo.Salary" id="SalaryResult">
+        <id property="sId" column="s_id"/>
+        <result property="empId" column="emp_id"/>
+        <result property="allSalary" column="all_salary"/>
+        <result property="bonus" column="bonus"/>
+        <result property="basicSalary" column="basic_salary"/>
+        <result property="isPay" column="is_pay"/>
+        <result property="lunchSalary" column="lunch_salary"/>
+        <result property="paytime" column="paytime"/>
+        <result property="trafficSalary" column="traffic_salary"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <association property="employee" column="emp_id" javaType="com.cwb.hrms.pojo.Employee" resultMap="empResult"/>
+    </resultMap>
+
+    <resultMap id="empResult" type="com.cwb.hrms.pojo.Employee">
+        <id property="empId" column="emp_id"/>
+        <result property="name" column="name"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="postId" column="post_id"/>
+    </resultMap>
+
+
+    <sql id="selectSalaryVo">
+        select  s.s_id, s.emp_id, s.all_salary, s.bonus, s.basic_salary, s.is_pay, s.lunch_salary,s.paytime,s.traffic_salary,s.create_time,s.remark,s.create_by,s.update_by,s.update_time,
+       		    e.emp_id,e.name,e.dept_id,e.post_id
+		from sys_salary s
+			 left join sys_employee e on s.emp_id =  e.emp_id
+    </sql>
+
+    <select id="selectSalaryList" parameterType="com.cwb.hrms.pojo.Salary" resultMap="SalaryResult">
+        <include refid="selectSalaryVo"/>
+        <where>
+            <if test="params.beginSalary != null and params.beginSalary != ''">
+                AND s.basic_salary >= #{params.beginSalary}
+            </if>
+            <if test="params.endSalary != null and params.endSalary != ''">
+                AND s.basic_salary&lt;=#{params.endSalary}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(s.paytime,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(s.paytime,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+            <if test="isPay != null and isPay != ''">
+                AND s.is_pay = #{isPay}
+            </if>
+            <if test="employee != null">
+                <if test="employee.name!=null and employee.name!=''">
+                    AND e.name like concat('%', #{employee.name}, '%')
+                </if>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectSalaryByName" parameterType="String" resultMap="SalaryResult">
+        <include refid="selectSalaryVo"/>
+        where e.name like concat('%', #{empName}, '%')
+    </select>
+
+    <select id="selectSalaryByEmpId" parameterType="Long" resultMap="SalaryResult">
+        <include refid="selectSalaryVo"/>
+        where e.emp_id = #{empId}
+    </select>
+
+    <select id="selectSalaryById" parameterType="Long" resultMap="SalaryResult">
+        <include refid="selectSalaryVo"/>
+        where s.s_id = #{sId}
+    </select>
+
+
+    <delete id="deleteSalaryByIds" parameterType="Long">
+        delete from sys_salary where s_id in
+        <foreach collection="array" item="sId" open="(" separator="," close=")">
+            #{sId}
+        </foreach>
+    </delete>
+
+    <update id="updateSalary" parameterType="com.cwb.hrms.pojo.Salary">
+        update sys_salary
+        <set>
+            <if test="empId != null and empId != 0">emp_id = #{empId},</if>
+            <if test="basicSalary != null and basicSalary != 0">basic_salary = #{basicSalary},</if>
+            <if test="bonus != null and bonus != 0">bonus = #{bonus},</if>
+            <if test="lunchSalary != null and lunchSalary != 0">lunch_salary = #{lunchSalary},</if>
+            <if test="trafficSalary != null and trafficSalary != 0">traffic_salary = #{trafficSalary},</if>
+            <if test="allSalary != null and allSalary != 0">all_salary = #{allSalary},</if>
+            <if test="isPay != null and isPay != ''">is_pay = #{isPay},</if>
+            <if test="paytime != null">paytime = #{paytime},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where s_id = #{sId}
+    </update>
+
+    <insert id="insertSalary" parameterType="com.cwb.hrms.pojo.Salary" useGeneratedKeys="true" keyProperty="sId">
+        insert into sys_salary(
+        <if test="sId != null and sId != 0">s_id,</if>
+        <if test="empId != null and empId != 0">emp_id,</if>
+        <if test="paytime != null ">paytime,</if>
+        <if test="basicSalary != null and basicSalary != 0">basic_salary,</if>
+        <if test="bonus != null and bonus != 0">bonus,</if>
+        <if test="lunchSalary != null and lunchSalary != 0">lunch_salary,</if>
+        <if test="trafficSalary != null and trafficSalary != 0">traffic_salary,</if>
+        <if test="allSalary != null and allSalary != 0">all_salary,</if>
+        <if test="isPay != null and isPay != 0">is_pay,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        create_time
+        )values(
+        <if test="sId != null and sId != 0">#{sId},</if>
+        <if test="empId != null and empId != 0">#{empId},</if>
+        <if test="paytime != null">#{paytime},</if>
+        <if test="basicSalary != null and basicSalary != 0">#{basicSalary},</if>
+        <if test="bonus != null and bonus != 0">#{bonus},</if>
+        <if test="lunchSalary != null and lunchSalary != 0">#{lunchSalary},</if>
+        <if test="trafficSalary != null and trafficSalary != 0">#{trafficSalary},</if>
+        <if test="allSalary != null and allSalary != 0">#{allSalary},</if>
+        <if test="isPay != null and isPay != 0">#{isPay},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        sysdate()
+        )
+    </insert>
+
+</mapper>

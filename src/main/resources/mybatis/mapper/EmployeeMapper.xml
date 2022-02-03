@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cwb.hrms.mapper.EmployeeMapper">
+
+    <resultMap type="com.cwb.hrms.pojo.Employee" id="EmployeeResult">
+        <id property="empId" column="emp_id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <result property="email" column="email"/>
+        <result property="phonenumber" column="phonenumber"/>
+        <result property="sex" column="sex"/>
+        <result property="beginDate" column="begin_date"/>
+        <result property="postId" column="post_id"/>
+        <result property="school" column="school"/>
+        <result property="status" column="status"/>
+        <result property="topDegree" column="top_degree"/>
+        <result property="wedlock" column="wedlock"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <association property="dept" column="dept_id" javaType="com.cwb.hrms.pojo.Dept" resultMap="deptResult"/>
+        <association property="post" column="post_id" javaType="com.cwb.hrms.pojo.Post" resultMap="postResult"/>
+    </resultMap>
+
+    <resultMap id="deptResult" type="com.cwb.hrms.pojo.Dept">
+        <id property="deptId" column="dept_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="status" column="dept_status"/>
+    </resultMap>
+
+    <resultMap id="postResult" type="com.cwb.hrms.pojo.Post">
+        <id property="postId" column="post_id"/>
+        <result property="postName" column="post_name"/>
+        <result property="postCode" column="post_code"/>
+        <result property="postSort" column="post_sort"/>
+        <result property="status" column="post_status"/>
+    </resultMap>
+
+    <sql id="selectEmployeeVo">
+        select  e.emp_id, e.dept_id, e.name, e.email, e.phonenumber, e.sex, e.age, e.begin_date, e.post_id, e.status, e.school, e.top_degree, e.wedlock, e.create_time,e.remark,
+       		    d.dept_id, d.parent_id, d.dept_name, d.order_num, d.status as dept_status,
+       		    p.post_id, p.post_name, p.post_code, p.post_sort,  p.status as post_status
+		from sys_employee e
+			 left join sys_dept d on e.dept_id = d.dept_id
+			 left join sys_post p on e.post_id = p.post_id
+    </sql>
+
+    <select id="selectEmpList" parameterType="com.cwb.hrms.pojo.Employee" resultMap="EmployeeResult">
+        <include refid="selectEmployeeVo"/>
+        <where>
+            <if test="name != null and name != ''">
+                AND e.name like concat('%', #{name}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND e.status = #{status}
+            </if>
+            <if test="phonenumber != null and phonenumber != ''">
+                AND e.phonenumber like concat('%', #{phonenumber}, '%')
+            </if>
+            <if test="params!=null">
+                <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                    AND date_format(e.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+                </if>
+            </if>
+            <if test="params!=null">
+                <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                    AND date_format(e.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+                </if>
+            </if>
+            <if test="deptId != null and deptId != 0">
+                AND (e.dept_id = #{deptId} OR e.dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE FIND_IN_SET
+                (#{deptId},ancestors) ))
+            </if>
+            <if test="postId != null and postId != 0">
+                AND (e.post_id = #{postId} OR e.post_id IN ( SELECT pt.post_id FROM sys_post pt WHERE FIND_IN_SET
+                (#{postId},ancestors) ))
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectEmpByName" parameterType="String" resultMap="EmployeeResult">
+        <include refid="selectEmployeeVo"/>
+        where e.name = #{empName}
+    </select>
+
+    <select id="selectEmpByPhoneNumber" parameterType="String" resultMap="EmployeeResult">
+        <include refid="selectEmployeeVo"/>
+        where e.phonenumber = #{phonenumber}
+    </select>
+
+    <select id="selectEmpByEmail" parameterType="String" resultMap="EmployeeResult">
+        <include refid="selectEmployeeVo"/>
+        where e.email = #{email}
+    </select>
+
+
+    <select id="checkPhoneUnique" parameterType="String" resultMap="EmployeeResult">
+		select emp_id, phonenumber from sys_employee where phonenumber=#{phonenumber}
+	</select>
+
+    <select id="checkEmailUnique" parameterType="String" resultMap="EmployeeResult">
+		select emp_id, email from sys_employee where email=#{email}
+	</select>
+
+    <select id="selectEmpById" parameterType="Long" resultMap="EmployeeResult">
+        <include refid="selectEmployeeVo"/>
+        where e.emp_id = #{empId}
+    </select>
+    <select id="selectEmployeesByTrainId" parameterType="Long" resultMap="EmployeeResult">
+		SELECT e.emp_id, e.name, e.dept_id
+		FROM sys_train t
+			 LEFT JOIN sys_train_emp te ON t.t_id = te.t_id
+			 LEFT JOIN sys_employee e ON te.emp_id = e.emp_id
+		WHERE te.t_id = #{tId}
+	</select>
+    <delete id="deleteEmpByIds" parameterType="Long">
+        delete from sys_employee where emp_id in
+        <foreach collection="array" item="empId" open="(" separator="," close=")">
+            #{empId}
+        </foreach>
+    </delete>
+
+    <update id="updateEmp" parameterType="com.cwb.hrms.pojo.Employee">
+        update sys_employee
+        <set>
+            <if test="deptId != null and deptId != 0">dept_id = #{deptId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="postId != null and postId != ''">post_id = #{postId},</if>
+            <if test="email != null and email != ''">email = #{email},</if>
+            <if test="phonenumber != null and phonenumber != ''">phonenumber = #{phonenumber},</if>
+            <if test="sex != null and sex != ''">sex = #{sex},</if>
+            <if test="school != null and school != ''">school = #{school},</if>
+            <if test="topDegree != null and topDegree != ''">top_degree = #{topDegree},</if>
+            <if test="age != null and age != ''">age = #{age},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="wedlock != null and wedlock != ''">wedlock = #{wedlock},</if>
+            <if test="beginDate != null">begin_date = #{beginDate},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where emp_id = #{empId}
+    </update>
+
+    <insert id="insertEmp" parameterType="com.cwb.hrms.pojo.Employee" useGeneratedKeys="true" keyProperty="empId">
+        insert into sys_employee(
+        <if test="empId != null and empId != 0">emp_id,</if>
+        <if test="deptId != null and deptId != 0">dept_id,</if>
+        <if test="beginDate != null ">begin_date,</if>
+        <if test="name != null and name != ''">name,</if>
+        <if test="email != null and email != ''">email,</if>
+        <if test="phonenumber != null and phonenumber != ''">phonenumber,</if>
+        <if test="sex != null and sex != ''">sex,</if>
+        <if test="wedlock != null and wedlock != ''">wedlock,</if>
+        <if test="school != null and school != ''">school,</if>
+        <if test="topDegree != null and topDegree != ''">top_degree,</if>
+        <if test="age != null and age != ''">age,</if>
+        <if test="postId != null and postId != ''">post_id,</if>
+        <if test="status != null and status != ''">status,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        create_time
+        )values(
+        <if test="empId != null and empId != 0">#{empId},</if>
+        <if test="deptId != null and deptId != 0">#{deptId},</if>
+        <if test="beginDate != null">#{beginDate},</if>
+        <if test="name != null and name != ''">#{name},</if>
+        <if test="email != null and email != ''">#{email},</if>
+        <if test="phonenumber != null and phonenumber != ''">#{phonenumber},</if>
+        <if test="sex != null and sex != ''">#{sex},</if>
+        <if test="wedlock != null and wedlock != ''">#{wedlock},</if>
+        <if test="school != null and school != ''">#{school},</if>
+        <if test="topDegree != null and topDegree != ''">#{topDegree},</if>
+        <if test="age != null and age != ''">#{age},</if>
+        <if test="postId != null and postId != ''">#{postId},</if>
+        <if test="status != null and status != ''">#{status},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        sysdate()
+        )
+    </insert>
+
+</mapper>

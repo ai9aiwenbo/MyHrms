@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cwb.hrms.mapper.TrainMapper">
+
+    <resultMap type="com.cwb.hrms.pojo.Train" id="TrainResult">
+        <id property="tId" column="t_id"/>
+        <result property="address" column="address"/>
+        <result property="content" column="content"/>
+        <result property="status" column="status"/>
+        <result property="title" column="title"/>
+        <result property="trainDate" column="train_date"/>
+        <result property="trainName" column="train_name"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectTrainVo">
+        select  t.t_id,t.address,t.content,t.status,t.title,t.train_date,t.train_name,t.create_by,t.create_time,t.update_by,t.update_time,t.remark
+		from sys_train t
+    </sql>
+
+    <select id="selectTrainList" parameterType="com.cwb.hrms.pojo.Train" resultMap="TrainResult">
+        <include refid="selectTrainVo"/>
+        <where>
+            <if test="title != null and title != ''">
+                AND t.title like concat('%', #{title}, '%')
+            </if>
+            <if test="trainName != null and trainName != ''">
+                AND t.train_name like concat('%', #{trainName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND t.status = #{status}
+            </if>
+            <if test="params!=null">
+                <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                    AND date_format(t.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+                </if>
+            </if>
+            <if test="params!=null">
+                <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                    AND date_format(t.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTrainByTitle" parameterType="String" resultMap="TrainResult">
+        <include refid="selectTrainVo"/>
+        <if test="title != null and title != ''">
+            AND t.title like concat('%', #{title}, '%')
+        </if>
+    </select>
+
+    <select id="selectTrainByTrainName" parameterType="String" resultMap="TrainResult">
+        <include refid="selectTrainVo"/>
+        <if test="trainName != null and trainName != ''">
+            AND t.train_name like concat('%', #{trainName}, '%')
+        </if>
+    </select>
+
+    <select id="selectTrainById" parameterType="Long" resultMap="TrainResult">
+        <include refid="selectTrainVo"/>
+        where t.t_id=#{tId}
+    </select>
+
+    <select id="deleteTrainById" parameterType="String" resultType="int">
+       delete from sys_train where t_id=#{tId}
+    </select>
+
+    <delete id="deleteTrainByIds" parameterType="Long">
+        delete from sys_train where t_id in
+        <foreach collection="array" item="tId" open="(" separator="," close=")">
+            #{tId}
+        </foreach>
+    </delete>
+
+    <select id="checkTitleUnique" parameterType="String" resultType="int">
+		select count(1) from sys_train where title=#{title}
+	</select>
+
+    <update id="updateTrain" parameterType="com.cwb.hrms.pojo.Train">
+        update sys_train
+        <set>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="trainName != null and trainName != ''">train_name = #{trainName},</if>
+            <if test="trainDate != null">train_date = #{trainDate},</if>
+            <if test="address != null and address != ''">address = #{address},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where t_id = #{tId}
+    </update>
+
+    <insert id="insertTrain" parameterType="com.cwb.hrms.pojo.Train" useGeneratedKeys="true" keyProperty="tId">
+        insert into sys_train(
+        <if test="tId != null and tId != 0">t_id,</if>
+        <if test="title != null and title != ''">title,</if>
+        <if test="content != null and content != ''">content,</if>
+        <if test="trainName != null and trainName != ''">train_name,</if>
+        <if test="trainDate != null">train_date,</if>
+        <if test="address != null and address != ''">address,</if>
+        <if test="status != null and status != ''">status,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        create_time
+        )values(
+        <if test="tId != null and tId != 0">#{tId},</if>
+        <if test="title != null and title != ''">#{title},</if>
+        <if test="content != null and content != ''">#{content},</if>
+        <if test="trainName != null and trainName != ''">#{trainName},</if>
+        <if test="trainDate != null ">#{trainDate},</if>
+        <if test="address != null and address != ''">#{address},</if>
+        <if test="status != null and status != ''">#{status},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        sysdate()
+        )
+    </insert>
+</mapper>
